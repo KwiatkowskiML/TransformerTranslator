@@ -4,6 +4,7 @@ from pathlib import Path
 import torch
 from sympy.physics.quantum import state
 from tqdm import tqdm
+from sympy.physics.quantum import state
 from torch.utils.tensorboard import SummaryWriter
 
 from config import get_weights_file_path, get_config
