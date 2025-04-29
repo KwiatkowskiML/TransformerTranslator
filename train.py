@@ -1,18 +1,18 @@
 import warnings
 from pathlib import Path
-
+import torch.nn as nn
 import torch
-from sympy.physics.quantum import state
+from tqdm import tqdm
 from torch.utils.tensorboard import SummaryWriter
+from config import get_weights_file_path, get_config
+from model import build_transformer
 
-from config import get_weights_file_path
 
-
-def get_model(config, vocab_src_len, vocab_tgt_len):
+def get_model(model_config, vocab_src_len, vocab_tgt_len):
     """
     Build the model
     """
-    model  = build_transformer(vocab_src_len, vocab_tgt_len, config['seq_len'], config['seq_len'], config['d_model'])
+    model  = build_transformer(vocab_src_len, vocab_tgt_len, model_config['seq_len'], model_config['seq_len'], model_config['d_model'])
     return model
 
 def train_model(config):
