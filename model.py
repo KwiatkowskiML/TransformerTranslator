@@ -84,20 +84,6 @@ class MultiHeadAttention(nn.Module):
         self.w_o = nn.Linear(d_model, d_model) # Wo
         self.dropout = nn.Dropout(dropout)
 
-    @staticmethod
-    def attention(query, key, value, mask, dropout: nn.Dropout):
-        d_k = query.shape[-1]
-
-        # (Batch, h, seq_len, d_k) --> (Batch, h, seq_len, seq_len)
-        attention_scores = (query @ key.transpose(-2, -1)) / math.sqrt(d_k)
-        if mask is not None:
-            attention_scores.masked_fill(mask == 0, -1e9)
-        attention_scores = attention_scores.softmax(dim = -1) # (Batch, h, seq_len, seq_len)
-        if dropout is not None:
-            attention_scores = dropout(attention_scores)
-
-        return (attention_scores @ value), attention_scores
-
     def forward(self, q, k, v, mask):
         query = self.w_q(q) # (Batch, seq_len, d_model) --> (Batch, seq_len, d_model)
         key = self.w_k(k) # (Batch, seq_len, d_model) --> (Batch, seq_len, d_model)
@@ -114,3 +100,27 @@ class MultiHeadAttention(nn.Module):
         x = x.transpose(1, 2).contiguous().view(x.shape[0], -1, self.h * self.d_k)
 
         return self.w_o(x)
+
+    @staticmethod
+    def attention(query, key, value, mask, dropout: nn.Dropout):
+        d_k = query.shape[-1]
+
+        # (Batch, h, seq_len, d_k) --> (Batch, h, seq_len, seq_len)
+        attention_scores = (query @ key.transpose(-2, -1)) / math.sqrt(d_k)
+        if mask is not None:
+            attention_scores.masked_fill(mask == 0, -1e9)
+        attention_scores = attention_scores.softmax(dim = -1) # (Batch, h, seq_len, seq_len)
+        if dropout is not None:
+            attention_scores = dropout(attention_scores)
+
+        return (attention_scores @ value), attention_scores
+
+
+class ResidualConnection(nn.Module):
+    def __init__(self, dropout: float) -> None:
+        super().__init__()
+        self.dropout = nn.Dropout(dropout)
+        self.norm = LayerNormalization()
+
+    def forward(self, x, sublayer):
+        return x + self.dropout(sublayer(self.norm(x)))
