@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 import math
 
-from constants import D_MODEL_SIZE, NUMBER_OF_LAYERS, HIDDEN_LAYER_SIZE
+from constants import D_MODEL_SIZE, NUMBER_OF_LAYERS, HIDDEN_LAYER_SIZE, ATTENTION_HEADS_NUMBER
 
 
 class InputEmbeddings(nn.Module):
@@ -93,7 +93,7 @@ class MultiHeadAttention(nn.Module):
         value = self.w_v(v) # (Batch, seq_len, d_model) --> (Batch, seq_len, d_model)
 
         # (Batch, seq_len, d_model) --> (Batch, seq_len, h, d_k) --> (Batch, h, seq_len, d_k)
-        query = query.view(query.shapte[0], query.shape[1], self.h, self.d_k).transpose(1, 2)
+        query = query.view(query.shape[0], query.shape[1], self.h, self.d_k).transpose(1, 2)
         key = key.view(key.shape[0], key.shape[1], self.h, self.d_k).transpose(1, 2)
         value = value.view(value.shape[0], value.shape[1], self.h, self.d_k).transpose(1, 2)
 
@@ -218,7 +218,7 @@ class Transformer(nn.Module):
 
 def build_transformer(src_vocab_size: int, tgt_vocab_size: int, src_seq_len: int, tgt_seq_len: int,
                       d_model: int = D_MODEL_SIZE, layers_num: int = NUMBER_OF_LAYERS,
-                      heads_number: int = NUMBER_OF_LAYERS, dropout: float = 0.1,
+                      heads_number: int = ATTENTION_HEADS_NUMBER, dropout: float = 0.1,
                       d_ff: int = HIDDEN_LAYER_SIZE) -> Transformer:
     # Create the embedding layers
     src_embed = InputEmbeddings(d_model, src_vocab_size)
