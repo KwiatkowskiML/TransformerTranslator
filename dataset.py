@@ -7,7 +7,7 @@ from constants import SOS_TOKEN, EOS_TOKEN, PAD_TOKEN
 
 class BilingualDataset(Dataset):
     def __init__(self, ds, tokenizer_src, tokenizer_tgt, src_lang, tgt_lang, seq_len):
-        super.__init__()
+        super().__init__()
 
         self.ds = ds
         self.tokenizer_src = tokenizer_src
@@ -16,9 +16,9 @@ class BilingualDataset(Dataset):
         self.tgt_lang = tgt_lang
         self.seq_len = seq_len
 
-        self.sos_token = torch.Tensor([tokenizer_src.token_to_id([SOS_TOKEN])], dtype=torch.int64)
-        self.eos_token = torch.Tensor([tokenizer_src.token_to_id([EOS_TOKEN])], dtype=torch.int64)
-        self.pad_token = torch.Tensor([tokenizer_src.token_to_id([PAD_TOKEN])], dtype=torch.int64)
+        self.sos_token = torch.Tensor([tokenizer_src.token_to_id(SOS_TOKEN)], dtype=torch.int64)
+        self.eos_token = torch.Tensor([tokenizer_src.token_to_id(EOS_TOKEN)], dtype=torch.int64)
+        self.pad_token = torch.Tensor([tokenizer_src.token_to_id(PAD_TOKEN)], dtype=torch.int64)
 
     def __len__(self):
         return len(self.ds)
@@ -80,7 +80,7 @@ class BilingualDataset(Dataset):
         }
 
 
-def casual_mask(size: int):
+def causal_mask(size: int):
     """
     Create a mask for the decoder input.
     """
