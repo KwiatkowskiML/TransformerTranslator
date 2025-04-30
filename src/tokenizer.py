@@ -1,6 +1,3 @@
-import torch
-import torch.nn as nn
-
 from torch.utils.data import random_split, DataLoader
 from datasets import load_dataset
 from tokenizers import Tokenizer
@@ -9,8 +6,8 @@ from tokenizers.pre_tokenizers import Whitespace
 from tokenizers.trainers import WordLevelTrainer
 from pathlib import Path
 
-from constants import UNKNOWN_TOKEN, PAD_TOKEN, SOS_TOKEN, EOS_TOKEN, DATASET_NAME
-from dataset import BilingualDataset
+from src.constants import UNKNOWN_TOKEN, PAD_TOKEN, SOS_TOKEN, EOS_TOKEN, DATASET_NAME, DATASET_PATH
+from src.dataset import BilingualDataset
 
 
 def get_all_sentences(ds, lang):
@@ -46,7 +43,8 @@ def get_ds(config):
     """
     Get the dataset.
     """
-    ds_raw = load_dataset(DATASET_NAME, lang1=config["lang_src"], lang2=config["lang_tgt"], split='train')
+    #ds_raw = load_dataset(DATASET_NAME, lang1=config["lang_src"], lang2=config["lang_tgt"], split='train')
+    ds_raw = load_dataset("json", data_files={"train": "data/test_sentences.jsonl"}, split="train")
 
     # Build the tokenizer
     tokenizer_src = get_or_build_tokenizer(config, ds_raw, config['lang_src'])

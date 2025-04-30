@@ -12,3 +12,4 @@ EOS_TOKEN: Final[str] = "[EOS]"
 SOS_TOKEN: Final[str] = "[SOS]"
 
 DATASET_NAME: Final[str] = "tatoeba"
+DATASET_PATH: Final[str] = "./data/test_sentences.csv"

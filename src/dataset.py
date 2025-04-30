@@ -2,7 +2,7 @@ import torch
 
 from torch.utils.data import Dataset
 
-from constants import SOS_TOKEN, EOS_TOKEN, PAD_TOKEN
+from src.constants import SOS_TOKEN, EOS_TOKEN, PAD_TOKEN
 
 
 class BilingualDataset(Dataset):

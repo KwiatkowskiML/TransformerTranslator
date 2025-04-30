@@ -6,11 +6,11 @@ import torch
 from tqdm import tqdm
 from torch.utils.tensorboard import SummaryWriter
 
-from config import get_weights_file_path, get_config
-from constants import SOS_TOKEN, EOS_TOKEN
-from dataset import causal_mask
-from model import build_transformer
-from tokenizer import get_ds
+from src.config import get_weights_file_path, get_config
+from src.constants import SOS_TOKEN, EOS_TOKEN
+from src.dataset import causal_mask
+from src.model import build_transformer
+from src.tokenizer import get_ds
 
 def run_validation(model, validation_ds, tokenizer_src, tokenizer_tgt, max_len, device, print_msg, global_state, writer, num_examples=2):
     """
@@ -169,6 +169,7 @@ def train_model(model_config):
 
         # Save the model
         model_filename = get_weights_file_path(model_config, f'{epoch:02d}')
+        print(model_filename)
         torch.save({
             'epoch': epoch,
             'model_state_dict': model.state_dict(),
