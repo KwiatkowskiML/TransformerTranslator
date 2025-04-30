@@ -3,8 +3,12 @@ from pathlib import Path
 
 import torch
 from sympy.physics.quantum import state
+from tqdm import tqdm
 from torch.utils.tensorboard import SummaryWriter
 
+from config import get_weights_file_path, get_config
+from model import build_transformer
+from tokenizer import get_ds
 from config import get_weights_file_path
 
 def run_validation(model, validation_ds, tokenizer_src, tokenizer_tgt, max_len, device, print_msg, global_state, writer, num_examples=2):
@@ -84,31 +88,33 @@ def greedy_decode(model, source, source_mask, tokenizer_src, tokenizer_tgt, max_
     return decoder_input.squeeze(0)
 
 
-def get_model(config, vocab_src_len, vocab_tgt_len):
+def get_model(model_config, vocab_src_len, vocab_tgt_len):
     """
     Build the model
     """
-    model  = build_transformer(vocab_src_len, vocab_tgt_len, config['seq_len'], config['seq_len'], config['d_model'])
+    model  = build_transformer(vocab_src_len, vocab_tgt_len, model_config['seq_len'], model_config['seq_len'], model_config['d_model'])
     return model
 
-def train_model(config):
+
+def train_model(model_config):
     # Define the device
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     print(f'Using device {device}')
 
-    Path(config["model_folder"]).mkdir(parents=True, exist_ok=True)
+    Path(model_config["model_folder"]).mkdir(parents=True, exist_ok=True)
 
-    train_dataloader, val_dataloader, tokenizer_src, tokenizer_tgt = get_ds(config)
-    model = get_model(config, tokenizer_src.get_vocab_size(), tokenizer_tgt.get_vocab_size()).to(device)
+    train_dataloader, val_dataloader, tokenizer_src, tokenizer_tgt = get_ds(model_config)
+    model = get_model(model_config, tokenizer_src.get_vocab_size(), tokenizer_tgt.get_vocab_size()).to(device)
+
     # Tensorboard
-    writer = SummaryWriter(config["experiment_name"])
+    writer = SummaryWriter(model_config["experiment_name"])
 
-    optimizer = torch.optim.Adam(model.parameters(), lr=config['lr'], eps=1e-9)
+    optimizer = torch.optim.Adam(model.parameters(), lr=model_config['lr'], eps=1e-9)
 
     initial_epoch = 0
     global_step = 0
-    if config['preload']:
-        model_filename = get_weights_file_path(config, config['preload'])
+    if model_config['preload']:
+        model_filename = get_weights_file_path(model_config, model_config['preload'])
         print(f'Preloading model from {model_filename}')
         state = torch.load(model_filename)
         initial_epoch = state['epoch'] + 1
@@ -117,19 +123,19 @@ def train_model(config):
 
     loss_fn = nn.CrossEntropyLoss(ignore_index=tokenizer_src.token_to_id('[PAD]'), label_smoothing=0.1).to(device)
 
-    for epoch in range(initial_epoch, config['num_epochs']):
+    for epoch in range(initial_epoch, model_config['num_epochs']):
         model.train()
         batch_iterator = tqdm(train_dataloader, desc=f'Processing epoch {epoch:02d}')
         for batch in batch_iterator:
 
             encoder_input = batch['encoder_input'].to(device) # (Batch, seq_len)
             decoder_input = batch['decoder_input'].to(device) # (Batch, seq_len)
-            encoder_mask = batch['encoder_mask'].to(device) # (batch, 1, seq_len, seq_len)
+            encoder_mask = batch['encoder_mask'].to(device) # (batch, 1, 1, seq_len)
             decoder_mask = batch['decoder_mask'].to(device) # (batch, 1, seq_len, seq_len)
 
             # Run the tensors through the transformer
             encoder_output = model.encode(encoder_input, encoder_mask) # (batch, seq_len, d_model)
-            decoder_output = model.decode(decoder_input, encoder_output, encoder_mask, decoder_mask) # (batch, seq_len, d_model)
+            decoder_output = model.decode(encoder_output, encoder_mask, decoder_input, decoder_mask) # (batch, seq_len, d_model)
             proj_output = model.project(decoder_output) # (batch, seq_len, tgt_vocab_size)
 
             label = batch['label'].to(device) # (batch, seq_len)
@@ -155,13 +161,14 @@ def train_model(config):
                        lambda msg: batch_iterator.write(msg), global_step, writer)
 
         # Save the model
-        model_filename = get_weights_file_path(config, f'{epoch:02d}')
+        model_filename = get_weights_file_path(model_config, f'{epoch:02d}')
         torch.save({
             'epoch': epoch,
             'model_state_dict': model.state_dict(),
             'optimizer_state_dict': optimizer.state_dict(),
             'global_step': global_step,
         }, model_filename)
+
 
 if __name__ == '__main__':
     warnings.filterwarnings('ignore')
