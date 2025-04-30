@@ -11,4 +11,4 @@ PAD_TOKEN: Final[str] = "[PAD]"
 EOS_TOKEN: Final[str] = "[EOS]"
 SOS_TOKEN: Final[str] = "[SOS]"
 
-DATASET_NAME: Final[str] = "opus_books"
+DATASET_NAME: Final[str] = "tatoeba"

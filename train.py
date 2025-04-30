@@ -83,6 +83,10 @@ def greedy_decode(model, source, source_mask, tokenizer_src, tokenizer_tgt, max_
 
         # Select the token with the max probability (because it is a greedy decoder)
         _, next_word = torch.max(prob, dim=1)
+
+        next_word_item = next_word.item()
+        print(f"Step {decoder_input.size(1)}: Predicted token ID: {next_word_item}, Token: {tokenizer_tgt.id_to_token(next_word_item)}")
+
         decoder_input = torch.cat([decoder_input, torch.empty(1, 1).type_as(source).fill_(next_word.item()).to(device)], dim=1)
 
         if next_word == eos_idx:

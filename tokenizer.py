@@ -46,7 +46,7 @@ def get_ds(config):
     """
     Get the dataset.
     """
-    ds_raw = load_dataset(DATASET_NAME, f'{config["lang_src"]}-{config["lang_tgt"]}', split='train')
+    ds_raw = load_dataset(DATASET_NAME, lang1=config["lang_src"], lang2=config["lang_tgt"], split='train')
 
     # Build the tokenizer
     tokenizer_src = get_or_build_tokenizer(config, ds_raw, config['lang_src'])
@@ -68,6 +68,11 @@ def get_ds(config):
         tgt_ids = tokenizer_tgt.encode(item['translation'][config['lang_tgt']]).ids
         max_len_src = max(max_len_src, len(src_ids))
         max_len_tgt = max(max_len_tgt, len(tgt_ids))
+
+        if max_len_tgt == len(tgt_ids) or max_len_src == len(src_ids):
+            print(f"Max length of source sentence: {max_len_src}, Max length of target sentence: {max_len_tgt}")
+            print(f"Source sentence: {item['translation'][config['lang_src']]}")
+            print(f"Target sentence: {item['translation'][config['lang_tgt']]}")
 
     print(f'Max length of source sentence: {max_len_src}')
     print(f'Max length of target sentence: {max_len_tgt}')
