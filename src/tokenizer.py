@@ -43,8 +43,7 @@ def get_ds(config):
     """
     Get the dataset.
     """
-    #ds_raw = load_dataset(DATASET_NAME, lang1=config["lang_src"], lang2=config["lang_tgt"], split='train')
-    ds_raw = load_dataset("json", data_files={"train": "data/test_sentences.jsonl"}, split="train")
+    ds_raw = load_dataset(DATASET_NAME, lang1=config["lang_src"], lang2=config["lang_tgt"], split='train')
 
     # Build the tokenizer
     tokenizer_src = get_or_build_tokenizer(config, ds_raw, config['lang_src'])

@@ -1,16 +1,18 @@
 from pathlib import Path
 
+from src.constants import D_MODEL_SIZE, BATCH_SIZE, EPOCH_COUNT, LEARNING_RATE, SEQ_LEN
+
 
 def get_config():
     """
     Get the configuration for the model
     """
     return {
-        "batch_size": 20,
-        "num_epochs": 20,
-        "lr": 1e-4,
-        "seq_len": 8,
-        "d_model": 512,
+        "batch_size": BATCH_SIZE,
+        "num_epochs": EPOCH_COUNT,
+        "lr": LEARNING_RATE,
+        "seq_len": SEQ_LEN,
+        "d_model": D_MODEL_SIZE,
         "lang_src": "en",
         "lang_tgt": "pl",
         "model_folder": "weights",

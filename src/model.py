@@ -52,7 +52,6 @@ class LayerNormalization(nn.Module):
         self.eps = eps
         self.alpha = nn.Parameter(torch.ones(features)) # Multiplied
         self.bias = nn.Parameter(torch.zeros(features)) # Added
-        print(f"LayerNormalization: features {features}")
 
     def forward(self, x):
         mean = x.mean(dim=-1, keepdim=True)
