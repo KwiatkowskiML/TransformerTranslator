@@ -7,7 +7,7 @@ from tqdm import tqdm
 from torch.utils.tensorboard import SummaryWriter
 
 from src.config import get_weights_file_path, get_config
-from src.constants import SOS_TOKEN, EOS_TOKEN
+from src.constants import SOS_TOKEN, EOS_TOKEN, PAD_TOKEN
 from src.dataset import causal_mask
 from src.model import build_transformer
 from src.tokenizer import get_ds
@@ -80,6 +80,10 @@ def greedy_decode(model, source, source_mask, tokenizer_src, tokenizer_tgt, max_
 
         # Get the next token
         prob = model.project(out[:, -1])
+        # print(f"Step {decoder_input.size(1)}:")
+        # for i in range(prob.size(1)):
+        #       print(f"Token: {tokenizer_tgt.id_to_token(i)}, prob: {prob[0][i].item():.4f}")
+
 
         # Select the token with the max probability (because it is a greedy decoder)
         _, next_word = torch.max(prob, dim=1)
@@ -127,9 +131,10 @@ def train_model(model_config):
         optimizer.load_state_dict(state['optimizer_state_dict'])
         global_step = state['global_step']
 
-    loss_fn = nn.CrossEntropyLoss(ignore_index=tokenizer_src.token_to_id('[PAD]'), label_smoothing=0.1).to(device)
+    loss_fn = nn.CrossEntropyLoss(ignore_index=tokenizer_tgt.token_to_id(PAD_TOKEN), label_smoothing=0.1).to(device)
 
     for epoch in range(initial_epoch, model_config['num_epochs']):
+        torch.cuda.empty_cache()
         model.train()
         batch_iterator = tqdm(train_dataloader, desc=f'Processing epoch {epoch:02d}')
         for batch in batch_iterator:
@@ -159,7 +164,7 @@ def train_model(model_config):
 
             # Update the weights
             optimizer.step()
-            optimizer.zero_grad()
+            optimizer.zero_grad(set_to_none=True)
 
             global_step += 1
 
