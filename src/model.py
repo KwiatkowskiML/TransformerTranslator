@@ -80,11 +80,11 @@ class MultiHeadAttention(nn.Module):
         assert d_model % h == 0, "d_model is not divisible by h"
 
         self.d_k = d_model // h
-        self.w_q = nn.Linear(d_model, d_model) # Wq
-        self.w_k = nn.Linear(d_model, d_model) # Wk
-        self.w_v = nn.Linear(d_model, d_model) # Wv
-
-        self.w_o = nn.Linear(d_model, d_model) # Wo
+        # bias=False
+        self.w_q = nn.Linear(d_model, d_model, bias=False) # Wq
+        self.w_k = nn.Linear(d_model, d_model, bias=False) # Wk
+        self.w_v = nn.Linear(d_model, d_model, bias=False) # Wv
+        self.w_o = nn.Linear(d_model, d_model, bias=False) # Wo
         self.dropout = nn.Dropout(dropout)
 
     def forward(self, q, k, v, mask):
@@ -111,7 +111,7 @@ class MultiHeadAttention(nn.Module):
         # (Batch, h, seq_len, d_k) --> (Batch, h, seq_len, seq_len)
         attention_scores = (query @ key.transpose(-2, -1)) / math.sqrt(d_k)
         if mask is not None:
-            attention_scores.masked_fill(mask == 0, -1e9)
+            attention_scores.masked_fill_(mask == 0, -1e9) # underscore very important for the in-place operation
         attention_scores = attention_scores.softmax(dim = -1) # (Batch, h, seq_len, seq_len)
         if dropout is not None:
             attention_scores = dropout(attention_scores)
@@ -187,7 +187,8 @@ class ProjectionLayer(nn.Module):
 
     def forward(self, x):
         # (Batch, Seq_len, d_model) --> (Batch, Seq_len, Vocab_size)
-        return torch.log_softmax(self.proj(x), dim=-1)
+        #return torch.log_softmax(self.proj(x), dim=-1)
+        return self.proj(x)
 
 
 class Transformer(nn.Module):

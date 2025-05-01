@@ -6,10 +6,10 @@ def get_config():
     Get the configuration for the model
     """
     return {
-        "batch_size": 8,
+        "batch_size": 20,
         "num_epochs": 20,
         "lr": 1e-4,
-        "seq_len": 120,
+        "seq_len": 8,
         "d_model": 512,
         "lang_src": "en",
         "lang_tgt": "pl",
