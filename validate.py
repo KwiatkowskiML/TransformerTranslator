@@ -1,5 +1,5 @@
 import torch
-from config import get_config, latest_weights_file_path
+from src.config import get_config, latest_weights_file_path
 from train import get_model, get_ds, run_validation
 
 if __name__ == "__main__":
@@ -18,4 +18,4 @@ if __name__ == "__main__":
     model.load_state_dict(state['model_state_dict'])
 
     run_validation(model, val_dataloader, tokenizer_src, tokenizer_tgt, config['seq_len'], device,
-                   lambda msg: print(msg), 0, None, num_examples=10)
+                   lambda msg: print(msg), 0, None, num_examples=20)
