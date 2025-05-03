@@ -3,3 +3,4 @@ tqdm~=4.67.1
 datasets
 tokenizers
 tensorboard
+sacrebleu
