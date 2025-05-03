@@ -1,6 +1,3 @@
-import torch
-import torch.nn as nn
-
 from torch.utils.data import random_split, DataLoader
 from datasets import load_dataset
 from tokenizers import Tokenizer
@@ -9,8 +6,8 @@ from tokenizers.pre_tokenizers import Whitespace
 from tokenizers.trainers import WordLevelTrainer
 from pathlib import Path
 
-from constants import UNKNOWN_TOKEN, PAD_TOKEN, SOS_TOKEN, EOS_TOKEN, DATASET_NAME
-from dataset import BilingualDataset
+from .constants import UNKNOWN_TOKEN, PAD_TOKEN, SOS_TOKEN, EOS_TOKEN, DATASET_NAME
+from .dataset import BilingualDataset
 
 
 def get_all_sentences(ds, lang):
@@ -31,7 +28,7 @@ def get_or_build_tokenizer(config, ds, lang):
         tokenizer.pre_tokenizer = Whitespace()
         trainer = WordLevelTrainer(
             special_tokens=[UNKNOWN_TOKEN, PAD_TOKEN, SOS_TOKEN, EOS_TOKEN],
-            min_frequency=2
+            min_frequency=1
         )
 
         tokenizer.train_from_iterator(get_all_sentences(ds, lang), trainer=trainer)
@@ -46,7 +43,7 @@ def get_ds(config):
     """
     Get the dataset.
     """
-    ds_raw = load_dataset(DATASET_NAME, f'{config["lang_src"]}-{config["lang_tgt"]}', split='train')
+    ds_raw = load_dataset(DATASET_NAME, lang1=config["lang_src"], lang2=config["lang_tgt"], split='train')
 
     # Build the tokenizer
     tokenizer_src = get_or_build_tokenizer(config, ds_raw, config['lang_src'])
@@ -56,6 +53,9 @@ def get_ds(config):
     train_ds_size = int(0.9 * len(ds_raw))
     valid_ds_size = len(ds_raw) - train_ds_size
     train_ds_raw, val_ds_raw = random_split(ds_raw, [train_ds_size, valid_ds_size])
+
+    # debug
+    # val_ds_raw = train_ds_raw
 
     train_ds = BilingualDataset(train_ds_raw, tokenizer_src, tokenizer_tgt, config['lang_src'], config['lang_tgt'], config['seq_len'])
     val_ds = BilingualDataset(val_ds_raw, tokenizer_src, tokenizer_tgt, config['lang_src'], config['lang_tgt'], config['seq_len'])
