@@ -6,11 +6,11 @@ import torch
 from tqdm import tqdm
 from torch.utils.tensorboard import SummaryWriter
 
-from src.config import get_weights_file_path, get_config, latest_weights_file_path
-from src.constants import SOS_TOKEN, EOS_TOKEN, PAD_TOKEN
-from src.dataset import causal_mask
-from src.model import build_transformer
-from src.tokenizer import get_ds
+from .src.config import get_weights_file_path, get_config, latest_weights_file_path
+from .src.constants import SOS_TOKEN, EOS_TOKEN, PAD_TOKEN
+from .src.dataset import causal_mask
+from .src.model import build_transformer
+from .src.tokenizer import get_ds
 
 def run_validation(model, validation_ds, tokenizer_src, tokenizer_tgt, max_len, device, print_msg, global_state, writer, num_examples=2):
     """

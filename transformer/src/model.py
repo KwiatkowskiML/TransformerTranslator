@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 import math
 
-from src.constants import D_MODEL_SIZE, NUMBER_OF_LAYERS, HIDDEN_LAYER_SIZE, ATTENTION_HEADS_NUMBER
+from .constants import D_MODEL_SIZE, NUMBER_OF_LAYERS, HIDDEN_LAYER_SIZE, ATTENTION_HEADS_NUMBER
 
 
 class InputEmbeddings(nn.Module):

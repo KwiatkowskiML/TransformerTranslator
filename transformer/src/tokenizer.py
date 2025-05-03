@@ -6,8 +6,8 @@ from tokenizers.pre_tokenizers import Whitespace
 from tokenizers.trainers import WordLevelTrainer
 from pathlib import Path
 
-from src.constants import UNKNOWN_TOKEN, PAD_TOKEN, SOS_TOKEN, EOS_TOKEN, DATASET_NAME
-from src.dataset import BilingualDataset
+from .constants import UNKNOWN_TOKEN, PAD_TOKEN, SOS_TOKEN, EOS_TOKEN, DATASET_NAME
+from .dataset import BilingualDataset
 
 
 def get_all_sentences(ds, lang):

@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from src.constants import D_MODEL_SIZE, BATCH_SIZE, EPOCH_COUNT, LEARNING_RATE, SEQ_LEN
+from .constants import D_MODEL_SIZE, BATCH_SIZE, EPOCH_COUNT, LEARNING_RATE, SEQ_LEN
 
 
 def get_config():
@@ -15,11 +15,11 @@ def get_config():
         "d_model": D_MODEL_SIZE,
         "lang_src": "en",
         "lang_tgt": "pl",
-        "model_folder": "weights",
+        "model_folder": "transformer/weights",
         "model_basename": "tmodel_",
         "preload": "latest",
-        "tokenizer_file": "tokenizer_{0}.json",
-        "experiment_name": "runs/tmodel"
+        "tokenizer_file": "transformer/tokenizer_{0}.json",
+        "experiment_name": "transformer/runs/tmodel"
     }
 
 def get_weights_file_path(config, epoch: str):

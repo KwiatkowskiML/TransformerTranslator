@@ -1,6 +1,6 @@
 import torch
-from src.config import get_config, latest_weights_file_path
-from train import get_model, get_ds, run_validation
+from .src.config import get_config, latest_weights_file_path
+from .train import get_model, get_ds, run_validation
 
 if __name__ == "__main__":
     # Define the device
