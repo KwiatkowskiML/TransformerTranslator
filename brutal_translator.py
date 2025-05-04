@@ -89,19 +89,8 @@ class BrutalTranslator:
         for eng, pol in common_translations.items():
             if eng not in self.translation_dict:
                 self.translation_dict[eng] = [pol]
-                print(f"Added missing translation: {eng} -> {pol}")
             elif pol and pol not in self.translation_dict[eng]:
                 self.translation_dict[eng].append(pol)
-                print(f"Added alternative translation: {eng} -> {pol}")
-
-        # Print sample translations after fixes
-        print("\nSample translations after fixes:")
-        samples = ["and", "was", "for", "that", "from", "the", "about", "to"]
-        for eng in samples:
-            if eng in self.translation_dict:
-                print(f"  {eng}: {', '.join(self.translation_dict[eng])}")
-            else:
-                print(f"  {eng}: No translation available")
 
     def translate_word(self, word):
         """Translate a single word preserving case and punctuation"""
@@ -196,7 +185,6 @@ if __name__ == "__main__":
         print(f"Polish:  {translator.translate(sentence)}")
         print()
 
-    # Interactive mode
     print("Enter your own sentences (type 'exit' to quit):")
     while True:
         user_input = input("> ")
