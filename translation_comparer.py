@@ -10,8 +10,8 @@ from brutal_translator.brutal_translator import BrutalTranslator
 
 TEST_SEQUENCES_PATH = 'data/test_sentences.jsonl'
 BRUTAL_DICT_PATH = 'brutal_translator/data/MUSEMultilingualEmbeddings.txt'
-
 FORMATTING_INDENT = 32
+
 
 def load_test_sentences(path):
     with open(path, 'r', encoding='utf-8') as f:
