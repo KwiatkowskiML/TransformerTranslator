@@ -165,7 +165,7 @@ class BrutalTranslator:
 
 if __name__ == "__main__":
     # Path to dictionary file
-    dictionary_path = "brutal_resources/MUSEMultilingualEmbeddings.txt"
+    dictionary_path = "data/MUSEMultilingualEmbeddings.txt"
 
     # Create translator
     translator = BrutalTranslator(dictionary_path)

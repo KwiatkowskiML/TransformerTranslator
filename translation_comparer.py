@@ -1,10 +1,17 @@
 import json
 import torch
 import sacrebleu
+
 from transformer.src.config import get_config, latest_weights_file_path
 from transformer.train import get_model, get_ds, greedy_decode
 from transformer.src.constants import SOS_TOKEN, EOS_TOKEN, PAD_TOKEN
 
+from brutal_translator.brutal_translator import BrutalTranslator
+
+TEST_SEQUENCES_PATH = 'data/test_sentences.jsonl'
+BRUTAL_DICT_PATH = 'brutal_translator/data/MUSEMultilingualEmbeddings.txt'
+
+FORMATTING_INDENT = 32
 
 def load_test_sentences(path):
     with open(path, 'r', encoding='utf-8') as f:
@@ -57,8 +64,11 @@ def main():
     model.load_state_dict(state['model_state_dict'])
     model.eval()
 
+    # Load the brutal translator
+    brutal_translator = BrutalTranslator(dictionary_path=BRUTAL_DICT_PATH)
+
     # Process each sentence and compute sentence-level BLEU
-    for pair in load_test_sentences('data/test_sentences.jsonl'):
+    for pair in load_test_sentences(TEST_SEQUENCES_PATH):
         en, pl_ref = pair['en'], pair['pl']
         encoder_input, encoder_mask = prepare_encoder_input(
             tokenizer_src, en, config['seq_len'], device
@@ -70,14 +80,20 @@ def main():
         )
         pl_pred = decode_prediction(out_ids, tokenizer_tgt)
 
+        # Translate using the brutal translator
+        brutal_translation = brutal_translator.translate(en)
+
         # Compute sentence-level BLEU with sacrebleu
-        bleu = sacrebleu.sentence_bleu(pl_pred, [pl_ref])
+        transformer_bleu = sacrebleu.sentence_bleu(pl_pred, [pl_ref])
+        brutal_bleu = sacrebleu.sentence_bleu(brutal_translation, [pl_ref])
 
         print('-' * 80)
-        print(f"{'SOURCE: ':>12}{en}")
-        print(f"{'TARGET: ':>12}{pl_ref}")
-        print(f"{'PREDICTED: ':>12}{pl_pred}")
-        print(f"{'BLEU: ':>12}{bleu.score:.2f}\n")
+        print(f"{'SOURCE: ':>{FORMATTING_INDENT}}{en}")
+        print(f"{'TARGET: ':>{FORMATTING_INDENT}}{pl_ref}")
+        print(f"{'TRANSFORMER PREDICTION: ':>{FORMATTING_INDENT}}{pl_pred}")
+        print(f"{'TRANSFORMER BLEU SCORE: ':>{FORMATTING_INDENT}}{transformer_bleu.score:.2f}\n")
+        print(f"{'BRUTAL TRANSLATION: ':>{FORMATTING_INDENT}}{brutal_translation}")
+        print(f"{'BRUTAL TRANSLATION BLEU SCORE: ':>{FORMATTING_INDENT}}{brutal_bleu.score:.2f}\n")
 
 if __name__ == '__main__':
     main()
